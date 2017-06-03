@@ -3,3 +3,4 @@
 A Julia implementation of a GAM.
 
 ![GAM](motorcycle.png)
+![GCV](gcv.png)
