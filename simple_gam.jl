@@ -4,11 +4,7 @@ using DataFrames
 function main()
 
 	df = readtable("motorcycle.csv")
-	scatter(df[:times], df[:accel], color="0.75", alpha=0.8, s=3)
-	xlabel("times")
-	ylabel("Acceleration")
-
-	k = 20 #length(df[:times])
+	k = 20
 
 	knots = quantile(df[:times], Array(linspace(0, 1, k)))
 
@@ -25,11 +21,21 @@ function main()
 	println("Lambda: ", lambda, 
 		"\nScore: ", score)
 
-	plot(t, y_bar, color="k")
-
+	plot_fit(df, y_bar)
 
 end
 
+function plot_fit(df::DataFrames.DataFrame, y_bar::Array{Float64, 1})
+
+	figure()
+	scatter(df[:times], df[:accel], color="0.75", alpha=0.8, s=3)
+	xlabel("times")
+	ylabel("Acceleration")
+
+	t = Array(df[:times])
+	plot(t, y_bar, color="k")
+
+end
 
 function R(x::Array{Float64, 1}, z::Array{Float64, 1})
 
@@ -72,7 +78,7 @@ end
 function fit_model(X::Array{Float64, 2}, Y::Array{Float64, 1}, 
 		B::Array{Float64, 2}, k::Int64)
 
-	lambdas =logspace(-3, 3, 20)
+	lambdas = logspace(-3, 3, 20)
 	
 	gcvs = zeros(20)
 	for (i, l) in enumerate(lambdas)
@@ -81,8 +87,14 @@ function fit_model(X::Array{Float64, 2}, Y::Array{Float64, 1},
 		gcvs[i] = s
 
 	end
-	
+
 	lambda = lambdas[indmin(gcvs)]
+
+	figure()
+	semilogx(lambdas, gcvs, "-o")
+	ylabel("GCV Score")
+	xlabel(L"$\lambda$")
+
 	Y_hat, score = solve_ols(X, Y, B, lambda, k)
 	
 	return Y_hat, score, lambda
