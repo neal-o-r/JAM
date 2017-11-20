@@ -50,13 +50,13 @@ end
 
 function GCV_score(X::Array{Float64, 2}, Y::Array{Float64, 1}, 
 			Y_hat::Array{Float64, 1})
+	
+        n = size(X)[2]
+        A = (X * inv(X' * X + n * l * eye(n)) * X')
+        Y_ = vcat(Y, zeros(22))
+        r = (sum((eye(size(X)[1]) - A) * Y_))^2 / n
 
-	n = size(X)[2]
-	In = (X * inv(X' * X) * X')
-	res = sum((Y - Y_hat).^2) 
-	H = In[1:n, 1:n]
-
-	return n * res  / (n - trace(H))^2
+        return r  / (trace(eye(size(X)[1]) - A) / n)^2
 
 end
 
